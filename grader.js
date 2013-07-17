@@ -30,12 +30,26 @@ var URL_NAME = "";
 
 var CHECKSFILE_DEFAULT = "checks.json";
 
+
+var getHtmlData = function(urlname) {
+    rest.get(urlname).on('complete',function(result) {
+	if (result instanceof Error) {
+	    sys.puts('Error: ' + result.message);
+	    this.retry(5000); // try again after 5 sec
+	} else {
+	    console.log('done');
+	}
+    });
+
+};
+
 var assertFileExists = function(infile) {
     var instr = infile.toString();
     if(!fs.existsSync(instr)) {
 	console.log("%s does not exist. Exiting.", instr);
 	process.exit(1); // http://nodejs.org/api/process.html#process_process_exit_code
-    }
+    
+}
     return instr;
 };
 
@@ -73,8 +87,10 @@ if(require.main == module) {
     if (options.file) {
     	var checkJson = checkHtmlFile(program.file, program.checks)};
     if (options.url) {
-    	var checkJson = checkHtmlFile()
-    }	
+	var htmldatafile = getHtmlData();
+	var rest.get(program.url).on('complete',htmldatafile);
+    	var checkJson = checkHtmlFile(urlhtmldata,program.checks)
+    };	
     var outJson = JSON.stringify(checkJson, null, 4);
     console.log(outJson);
 } else {
