@@ -44,10 +44,15 @@ var verifyURL = function(urlname) {
 
 var getHtmlDataFile = function(urlname) {
     rest.get(urlname).on('complete',function(result) {
-	fs.writeFileSync(urlhtmlfile, result);
+	fs.writeFileSync(urlhtmlfile, result, function(data) {
+		if (data instanceof Error) {
+			console.log('Error Writing HTML File,..');
+			process.exit(1);
+		}
+	});
     });
+    
 };
-
 
 var assertFileExists = function(infile) {
     var instr = infile.toString();
