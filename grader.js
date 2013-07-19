@@ -44,14 +44,9 @@ var verifyURL = function(urlname) {
 
 var getHtmlDataFile = function(urlname) {
     rest.get(urlname).on('complete',function(result) {
-	fs.writeFileSync(urlhtmlfile, result, function(data) {
-		if (data instanceof Error) {
-			console.log('Error Writing HTML File,..');
-			process.exit(1);
-		}
-	});
+	fs.writeFileSync(urlhtmlfile, result);
     });
-    
+
 };
 
 var assertFileExists = function(infile) {
@@ -96,12 +91,12 @@ if(require.main == module) {
 	.option('-u, --url <url_name>', 'url name', clone(verifyURL), URL_NAME)
 	.parse(process.argv);
 
-    if(program.url) {
+    if (program.url) {
 	getHtmlDataFile(program.url);
 	var checkJson = checkHtmlFile(urlhtmlfile, program.checks);
     } else {
 
-	if(program.file) {
+	if (program.file) {
 	    var checkJson = checkHtmlFile(program.file, program.checks);
 	}
     }
