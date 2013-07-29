@@ -43,9 +43,6 @@ var verifyURL = function(urlname) {
 };
 
 var getHtmlDataFile = function(urlname) {
-    rest.get(urlname).on('complete',function(result) {
-	fs.writeFileSync(urlhtmlfile, result);
-    });
 
 };
 
@@ -88,21 +85,31 @@ if(require.main == module) {
     program
 	.option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
 	.option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
-	.option('-u, --url <url_name>', 'url name', clone(verifyURL), URL_NAME)
+	.option('-u, --url <url_name>', 'url name')
 	.parse(process.argv);
 
     if (program.url) {
-	getHtmlDataFile(program.url);
-	var checkJson = checkHtmlFile(urlhtmlfile, program.checks);
-    } else {
+	rest.get(program.url).on('complete', function(result) {
+	    if (result instanceof Error) { 
+		console.log("error");
+		}
+	    else {		
+		fs.writeFileSync(urlhtmlfile, result);
+		var checkJson = checkHtmlFile(urlhtmlfile, program.checks);
+		var outJson = JSON.stringify(checkJson, null, 4);
+		console.log(outJson);
+		}
+	});
 
+    } else {
 	if (program.file) {
 	    var checkJson = checkHtmlFile(program.file, program.checks);
+	    var outJson = JSON.stringify(checkJson, null, 4);
+	    console.log(outJson);
 	}
     }
 
-    var outJson = JSON.stringify(checkJson, null, 4);
-    console.log(outJson);
 } else {
+
     exports.checkHtmlFile = checkHtmlFile;
 }
